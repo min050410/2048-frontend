@@ -1,0 +1,39 @@
+.App {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.board {
+    margin-top: 50px;
+    background-color: #cdc1b5;
+    width: 500px;
+    height: 500px;
+}
+
+.board--content {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-left: 8px solid #baaea0;
+    border-top: 8px solid #baaea0;
+}
+
+.content {
+    border-bottom: 8px solid #baaea0;
+    border-right: 8px solid #baaea0;
+    height: 115px;
+}
+
+.c2 {
+    background-color: #eee4da;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.c2 > span {
+    color: #747066;
+    font-size: 40px;
+}
