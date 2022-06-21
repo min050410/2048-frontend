@@ -24,7 +24,7 @@ const Header = () => {
                     <span>마이 페이지</span>
                 </div>
             
-                <button class={ menu ? "active" : "menu-trigger" } onClick={toggleMenu}>
+                <button className = { menu ? "active" : "menu-trigger" } onClick={toggleMenu}>
                     <span></span>
                     <span></span>
                     <span></span>
