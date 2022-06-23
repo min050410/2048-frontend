@@ -38,9 +38,11 @@ const Board = () => {
     )
   })
 
+  // 초깃값
   let [contentMap, setContentMap] = useState(item);
 
   useEffect(() => {
+    const render = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16]];
     setContentMap(render.map((listIn) => {
       return (
         listIn.map((idx) => {
@@ -73,6 +75,7 @@ const Board = () => {
     }))
   }, [content]);
 
+  // Deque 자료구조
   class Deque {
     constructor() {
       this._arr = [];
@@ -87,10 +90,10 @@ const Board = () => {
       return this._arr.pop();
     }
     front() {
-      return (this._arr.length != 0) ? this._arr[0] : '-1';
+      return (this._arr.length !== 0) ? this._arr[0] : '-1';
     }
     back() {
-      return (this._arr.length != 0) ? this._arr[this._arr.length - 1] : '-1';
+      return (this._arr.length !== 0) ? this._arr[this._arr.length - 1] : '-1';
     }
     size() {
       return this._arr.length;
@@ -101,7 +104,7 @@ const Board = () => {
     print_all() {
       let message = '';
       for (let i = 0; i < this._arr.length; i++) {
-        if (i == this._arr.length - 1) {
+        if (i === this._arr.length - 1) {
           message += this._arr[i];
           break;
         }
@@ -113,8 +116,8 @@ const Board = () => {
 
   const moveRight = (prev) => {
     const deque = new Deque();
-    for (let i = 0; i <= 3; i++) {
-      for (let j = 0; j <= 3; j++) {
+    for (let i = 3; i >= 0; i--) {
+      for (let j = 3; j >= 0; j--) {
         if (prev[i][j] !== '') {
           if (deque.back() !== prev[i][j]) {
             deque.push_back(prev[i][j]);
@@ -132,7 +135,7 @@ const Board = () => {
       // deque.print_all();
       let queue_length = deque.size();
       for (let k = 3; k > 3 - queue_length; k--) {
-        prev[i][k] = deque.pop_back();
+        prev[i][k] = deque.pop_front();
       }
     }
     return prev;
@@ -196,8 +199,8 @@ const Board = () => {
 
   const moveDown = (prev) => {
     const deque = new Deque();
-    for (let i = 0; i <= 3; i++) {
-      for (let j = 0; j <= 3; j++) {
+    for (let i = 3; i >= 0; i--) {
+      for (let j = 3; j >= 0; j--) {
         if (prev[j][i] !== '') {
           if (deque.back() !== prev[j][i]) {
             deque.push_back(prev[j][i]);
@@ -215,12 +218,29 @@ const Board = () => {
       // deque.print_all();
       let queue_length = deque.size();
       for (let k = 3; k > 3 - queue_length; k--) {
-        prev[k][i] = deque.pop_back();
+        prev[k][i] = deque.pop_front();
       }
     }
     return prev;
   }
 
+  // 랜덤 생성 구현중
+  const findBlock = (prev) => {
+    let x = [];
+    let y = [];
+    for (let i=0; i<=3; i++) {
+      for (let j=0; j<=3; j++) {
+        if (prev[i][j] === '') {
+
+        }
+      }
+    }
+    return prev;
+  }
+
+  const newBlock = () => {
+    setContent(prev => findBlock([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
+  }
 
   const keyDown = ({ keyCode }) => {
     switch (keyCode) {
@@ -228,6 +248,7 @@ const Board = () => {
         // 새로운 주소값 할당으로 re-rendering
         // 전개 연산자는 1차원 배열에서만 유효
         setContent(prev => moveLeft([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
+        newBlock();
         break;
       case 38:
         setContent(prev => moveUp([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
