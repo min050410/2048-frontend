@@ -1,4 +1,3 @@
-import TodoCalendar from './components/todoCalendar';
 import Header from './components/header';
 import Board from './components/board';
 import './style/index.css'

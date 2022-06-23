@@ -7,7 +7,6 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-import TodoCalendar from './components/todoCalendar';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

@@ -1,11 +1,24 @@
 import '../style/board.css';
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 const Board = () => {
-  let [content, setContent] = useState([['2', '', '', ''], ['2', '', '2', '2'], ['2', '', '2', ''], ['2', '', '2', '']]);
+  const CREATE_BLOCK_NUM = 4;
+  const BLOCK_CREATE_DELAY = 200;
+
+  const [content, setContent] = useState([['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]);
+  const [gameover, setGameover] = useState(0);
+  const controllerRef = useRef(null);
 
   const render = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16]];
+
+  // useEffect 처음 랜더링
+  useEffect(() => {
+    // 4개의 블록 생성
+    for (let i=0; i<CREATE_BLOCK_NUM; i++) {
+      newBlock();
+    }
+    controllerRef.current?.focus(); 
+  },[]); 
 
   const item = render.map((listIn) => {
     return (
@@ -76,8 +89,31 @@ const Board = () => {
   // 초깃값
   let [contentMap, setContentMap] = useState(item);
 
+  // 게임 오버 판별
+  const checkGameOver = () => {
+    for (let i=0; i<=3; i++) {
+      for (let j=0; j<=3; j++) {
+        if (content[i][j] === '') return false;
+        if (j<3) {
+          if (content[i][j] === content[i][j+1]) {
+            return false;
+          }
+        } 
+        if (i<3) {
+          if (content[i][j] === content[i+1][j]) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
   useEffect(() => {
     setContentMap(item);
+    if(checkGameOver()) {
+      setGameover(1);
+    }
   }, [content]);
 
   // Deque 자료구조
@@ -227,6 +263,7 @@ const Board = () => {
     return prev;
   }
   
+  // 빈 칸 찾기
   const findBlock = (prev) => {
     let x = [];
     let y = [];
@@ -238,8 +275,6 @@ const Board = () => {
         }
       }
     }
-    console.log(y);
-    console.log(x);
     // 가득 찼을 때
     if (x.length === 0) {
       return prev;
@@ -251,9 +286,11 @@ const Board = () => {
     return prev;
   }
 
+  // 새로운 블록 생성
   const newBlock = () => {
     setContent(prev => findBlock([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
   }
+
 
   const keyDown = ({ keyCode }) => {
     switch (keyCode) {
@@ -261,31 +298,46 @@ const Board = () => {
         // 새로운 주소값 할당으로 re-rendering
         // 전개 연산자는 1차원 배열에서만 유효
         setContent(prev => moveLeft([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
-        setTimeout(() => newBlock(), 200);
+        setTimeout(() => newBlock(), BLOCK_CREATE_DELAY);
         break;
       case 38:
         setContent(prev => moveUp([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
-        setTimeout(() => newBlock(), 200);
+        setTimeout(() => newBlock(), BLOCK_CREATE_DELAY);
+        
         break;
       case 39:
         setContent(prev => moveRight([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
-        setTimeout(() => newBlock(), 200);
+        setTimeout(() => newBlock(), BLOCK_CREATE_DELAY);
+        
         break;
       case 40:
         setContent(prev => moveDown([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
-        setTimeout(() => newBlock(), 200);
+        setTimeout(() => newBlock(), BLOCK_CREATE_DELAY); 
         break;
       default:
         break;
     }
   };
 
+  const restartGame = () => {
+    setGameover(0);
+    setContent([['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]);
+    // 4개의 블록 생성
+    for (let i=0; i<CREATE_BLOCK_NUM; i++) {
+      newBlock();
+    }
+  }
+
   return (
-    <div className="board">
-      <div className="board--content">
+    <div className="board" onClick={() => {
+        controllerRef.current?.focus();
+      }} onBlur={() => {controllerRef.current?.focus();}}>
+      
+      <div className={gameover?"board--gameover":"board--content"} >
         {contentMap}
       </div>
-      <input onKeyDown={keyDown}></input>
+      {gameover ? <div className="gameover">게임오버 <button className="retry" onClick={restartGame}>다시하기</button></div> : null}
+      <input onKeyDown={keyDown} ref={controllerRef} autoFocus></input>
     </div>
   )
 }
