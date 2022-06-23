@@ -7,6 +7,7 @@ const Board = () => {
 
   const [content, setContent] = useState([['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]);
   const [gameover, setGameover] = useState(0);
+  const [createEffect, setCreateEffect] = useState(-1);
   const controllerRef = useRef(null);
 
   const render = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16]];
@@ -17,16 +18,16 @@ const Board = () => {
     for (let i=0; i<CREATE_BLOCK_NUM; i++) {
       newBlock();
     }
-    controllerRef.current?.focus(); 
   },[]); 
 
   const item = render.map((listIn) => {
+    console.log(createEffect);
     return (
       listIn.map((idx) => {
         return (
           <div className="content" key={idx}>
             {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '2' &&
-              <div className="c2">
+              <div className="c2" id={idx === createEffect? 'effectNew' : 'old'}>
                 <span>2</span>
               </div>
             }
@@ -282,7 +283,8 @@ const Board = () => {
     // 랜덤 블록 생성
     let random_index = Math.floor(Math.random() * x.length);
 
-    prev[y[random_index]][x[random_index]] = '2';
+    prev[y[random_index]][x[random_index]] ='2'; 
+    setCreateEffect(y[random_index]*4+x[random_index]+1);
     return prev;
   }
 

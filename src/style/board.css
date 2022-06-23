@@ -98,13 +98,16 @@ blurEffect {
     align-items: center;
     justify-content: center;
     height: 100%;
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);
-    animation: pulse 2s;
 }
 
 .c2>span {
     color: #747066;
     font-size: 40px;
+}
+
+#effectNew {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);
+    animation: pulse 2s;  
 }
 
 @keyframes pulse {
