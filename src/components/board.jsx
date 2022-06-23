@@ -32,6 +32,41 @@ const Board = () => {
                   <span>16</span>
                 </div>
             }
+            {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '32' &&
+                <div className="c32">
+                  <span>32</span>
+                </div>
+            }
+            {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '64' &&
+                <div className="c64">
+                  <span>64</span>
+                </div>
+            }
+            {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '128' &&
+                <div className="c128">
+                  <span>128</span>
+                </div>
+            }
+            {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '256' &&
+                <div className="c256">
+                  <span>256</span>
+                </div>
+            }
+            {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '512' &&
+                <div className="c512">
+                  <span>512</span>
+                </div>
+            }
+            {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '1024' &&
+                <div className="c1024">
+                  <span>1024</span>
+                </div>
+            }
+            {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '2048' &&
+                <div className="c2048">
+                  <span>2048</span>
+                </div>
+            }
           </div>
         )
       })
@@ -42,37 +77,7 @@ const Board = () => {
   let [contentMap, setContentMap] = useState(item);
 
   useEffect(() => {
-    const render = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16]];
-    setContentMap(render.map((listIn) => {
-      return (
-        listIn.map((idx) => {
-          return (
-            <div className="content" key={idx}>
-              {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '2' &&
-                <div className="c2">
-                  <span>2</span>
-                </div>
-              }
-              {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '4' &&
-                <div className="c4">
-                  <span>4</span>
-                </div>
-              }
-              {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '8' &&
-                <div className="c8">
-                  <span>8</span>
-                </div>
-              }
-              {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '16' &&
-                <div className="c16">
-                  <span>16</span>
-                </div>
-              }
-            </div>
-          )
-        })
-      )
-    }))
+    setContentMap(item);
   }, [content]);
 
   // Deque 자료구조
@@ -161,7 +166,6 @@ const Board = () => {
       // 채우기
       // deque.print_all();
       let queue_length = deque.size();
-      // moveRight랑 다른 부분
       for (let k = 0; k < queue_length; k++) {
         prev[i][k] = deque.pop_front();
       }
@@ -189,7 +193,6 @@ const Board = () => {
       // 채우기
       // deque.print_all();
       let queue_length = deque.size();
-      // moveRight랑 다른 부분
       for (let k = 0; k < queue_length; k++) {
         prev[k][i] = deque.pop_front();
       }
@@ -223,18 +226,28 @@ const Board = () => {
     }
     return prev;
   }
-
-  // 랜덤 생성 구현중
+  
   const findBlock = (prev) => {
     let x = [];
     let y = [];
     for (let i=0; i<=3; i++) {
       for (let j=0; j<=3; j++) {
         if (prev[i][j] === '') {
-
+          y = [...y, i];
+          x = [...x, j];
         }
       }
     }
+    console.log(y);
+    console.log(x);
+    // 가득 찼을 때
+    if (x.length === 0) {
+      return prev;
+    }
+    // 랜덤 블록 생성
+    let random_index = Math.floor(Math.random() * x.length);
+
+    prev[y[random_index]][x[random_index]] = '2';
     return prev;
   }
 
@@ -248,16 +261,19 @@ const Board = () => {
         // 새로운 주소값 할당으로 re-rendering
         // 전개 연산자는 1차원 배열에서만 유효
         setContent(prev => moveLeft([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
-        newBlock();
+        setTimeout(() => newBlock(), 200);
         break;
       case 38:
         setContent(prev => moveUp([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
+        setTimeout(() => newBlock(), 200);
         break;
       case 39:
         setContent(prev => moveRight([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
+        setTimeout(() => newBlock(), 200);
         break;
       case 40:
         setContent(prev => moveDown([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
+        setTimeout(() => newBlock(), 200);
         break;
       default:
         break;

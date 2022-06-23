@@ -32,12 +32,26 @@
     align-items: center;
     justify-content: center;
     height: 100%;
+    /* animation-duration: 1s;
+    animation-name: slidein; */
 }
 
 .c2 > span {
     color: #747066;
     font-size: 40px;
 }
+
+/* @keyframes slidein {
+    from {
+      margin-left: 30%;
+      width: 110%
+    }
+  
+    to {
+      margin-left: 0%;
+      width: 100%;
+    }
+  } */
 
 .c4 {
     border-radius: 20px;
@@ -80,4 +94,104 @@
     color:#f9f5f0;
     font-size: 40px;
 }
+
+.c32 {
+    border-radius: 20px;
+    background-color: #f57c5f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.c32 > span {
+    color:#fff7f1;
+    font-size: 40px;
+}
+
+.c64 {
+    border-radius: 20px;
+    background-color: #f65d3b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.c64 > span {
+    color:#f9f8f6;
+    font-size: 40px;
+}
+
+.c128 {
+    border-radius: 20px;
+    background-color: #edce71;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.c128 > span {
+    color:#f9f7f3;
+    font-size: 40px;
+}
+
+.c256 {
+    border-radius: 20px;
+    background-color: #edcc61;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.c256 > span {
+    color:#f9f6f3;
+    font-size: 40px;
+}
+
+.c512 {
+    border-radius: 20px;
+    background-color: #ecc850;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.c512 > span {
+    color:#f9f5f0;
+    font-size: 40px;
+}
+
+.c1024 {
+    border-radius: 20px;
+    background-color: #efcf6c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.c1024 > span {
+    color:#f9f5f0;
+    font-size: 40px;
+}
+
+.c2048 {
+    border-radius: 20px;
+    background-color: #eec22e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.c2048 > span {
+    color:#f9f5f0;
+    font-size: 40px;
+}
+
+
 
