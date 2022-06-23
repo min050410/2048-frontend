@@ -10,7 +10,7 @@ const Header = () => {
     const [menu, setMenu] = useState(0);
 
     const toggleMenu = () => {
-        setMenu( (menu)=>!menu );
+        setMenu((menu) => !menu);
     }
 
     return (
@@ -23,8 +23,8 @@ const Header = () => {
                 <div className="mypage">
                     <span>마이 페이지</span>
                 </div>
-            
-                <button className = { menu ? "active" : "menu-trigger" } onClick={toggleMenu}>
+
+                <button className={menu ? "active" : "menu-trigger"} onClick={toggleMenu}>
                     <span></span>
                     <span></span>
                     <span></span>

@@ -37,3 +37,43 @@
     color: #747066;
     font-size: 40px;
 }
+
+.c4 {
+    background-color: #ece0c8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.c4 > span {
+    color:#776f66;
+    font-size: 40px;
+}
+
+.c8 {
+    background-color: #f2b179;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.c8 > span {
+    color:#f9f4f0;
+    font-size: 40px;
+}
+
+.c16 {
+    background-color: #f59563;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.c16 > span {
+    color:#f9f5f0;
+    font-size: 40px;
+}
+
