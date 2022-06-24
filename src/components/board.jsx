@@ -2,32 +2,41 @@ import '../style/board.css';
 import { useState, useRef, useEffect } from 'react';
 
 const Board = () => {
-  const CREATE_BLOCK_NUM = 4;
-  const BLOCK_CREATE_DELAY = 200;
 
+  const CREATE_BLOCK_NUM = 4; 
+  const BLOCK_CREATE_DELAY = 200;
+  const SCORE_SCALER = 200;
+  const SCORE_SCALER_2 = 1;
+  
   const [content, setContent] = useState([['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]);
   const [gameover, setGameover] = useState(0);
   const [createEffect, setCreateEffect] = useState(-1);
+  const [mergeEffect, setMergeEffect] = useState(-1);
+  const [text, setText] = useState('');
+  const [score, setScore] = useState(0);
+  const [scoreMaxNumber, setScoreMaxNumber] = useState(0);
+
+  // input focus를 위한 Ref
   const controllerRef = useRef(null);
-
+  
   const render = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16]];
-
+  
   // useEffect 처음 랜더링
   useEffect(() => {
-    // 4개의 블록 생성
-    for (let i=0; i<CREATE_BLOCK_NUM; i++) {
+    // n개의 블록 생성
+    for (let i = 0; i < CREATE_BLOCK_NUM; i++) {
       newBlock();
     }
-  },[]); 
+  }, []);
 
   const item = render.map((listIn) => {
-    console.log(createEffect);
+    // console.log(createEffect);
     return (
       listIn.map((idx) => {
         return (
           <div className="content" key={idx}>
             {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '2' &&
-              <div className="c2" id={idx === createEffect? 'effectNew' : 'old'}>
+              <div className="c2" id={idx === createEffect ? 'effectNew' : 'old'}>
                 <span>2</span>
               </div>
             }
@@ -42,44 +51,44 @@ const Board = () => {
               </div>
             }
             {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '16' &&
-                <div className="c16">
-                  <span>16</span>
-                </div>
+              <div className="c16">
+                <span>16</span>
+              </div>
             }
             {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '32' &&
-                <div className="c32">
-                  <span>32</span>
-                </div>
+              <div className="c32">
+                <span>32</span>
+              </div>
             }
             {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '64' &&
-                <div className="c64">
-                  <span>64</span>
-                </div>
+              <div className="c64">
+                <span>64</span>
+              </div>
             }
             {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '128' &&
-                <div className="c128">
-                  <span>128</span>
-                </div>
+              <div className="c128">
+                <span>128</span>
+              </div>
             }
             {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '256' &&
-                <div className="c256">
-                  <span>256</span>
-                </div>
+              <div className="c256">
+                <span>256</span>
+              </div>
             }
             {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '512' &&
-                <div className="c512">
-                  <span>512</span>
-                </div>
+              <div className="c512">
+                <span>512</span>
+              </div>
             }
             {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '1024' &&
-                <div className="c1024">
-                  <span>1024</span>
-                </div>
+              <div className="c1024">
+                <span>1024</span>
+              </div>
             }
             {content[Math.floor((idx - 1) / 4)][(idx - 1) % 4] === '2048' &&
-                <div className="c2048">
-                  <span>2048</span>
-                </div>
+              <div className="c2048">
+                <span>2048</span>
+              </div>
             }
           </div>
         )
@@ -87,21 +96,20 @@ const Board = () => {
     )
   })
 
-  // 초깃값
   let [contentMap, setContentMap] = useState(item);
 
   // 게임 오버 판별
   const checkGameOver = () => {
-    for (let i=0; i<=3; i++) {
-      for (let j=0; j<=3; j++) {
+    for (let i = 0; i <= 3; i++) {
+      for (let j = 0; j <= 3; j++) {
         if (content[i][j] === '') return false;
-        if (j<3) {
-          if (content[i][j] === content[i][j+1]) {
+        if (j < 3) {
+          if (content[i][j] === content[i][j + 1]) {
             return false;
           }
-        } 
-        if (i<3) {
-          if (content[i][j] === content[i+1][j]) {
+        }
+        if (i < 3) {
+          if (content[i][j] === content[i + 1][j]) {
             return false;
           }
         }
@@ -110,11 +118,24 @@ const Board = () => {
     return true;
   }
 
+  // 현재 최대 수 판별
+  const checkMaxNumber = () => {
+    let maxNum = 0;
+    for (let i = 0; i <= 3; i++) {
+      for (let j = 0; j <= 3; j++) {
+        if (content[i][j] === '') continue;
+        maxNum = Math.max(maxNum, Number(content[i][j]));
+      }
+    }
+    return maxNum;
+  }
+
   useEffect(() => {
     setContentMap(item);
-    if(checkGameOver()) {
+    if (checkGameOver()) {
       setGameover(1);
     }
+    setScoreMaxNumber(checkMaxNumber());
   }, [content]);
 
   // Deque 자료구조
@@ -168,6 +189,8 @@ const Board = () => {
           else {
             deque.pop_back();
             deque.push_back((prev[i][j] * 2).toString());
+            // 점수 추가
+            setScore(score + (Math.pow(prev[i][j] * 2, SCORE_SCALER_2) * SCORE_SCALER));
           }
         }
         // 비우기
@@ -195,6 +218,8 @@ const Board = () => {
           else {
             deque.pop_back();
             deque.push_back((prev[i][j] * 2).toString());
+            // 점수 추가
+            setScore(score + (Math.pow(prev[i][j] * 2, SCORE_SCALER_2) * SCORE_SCALER));
           }
         }
         // 비우기
@@ -222,9 +247,11 @@ const Board = () => {
           else {
             deque.pop_back();
             deque.push_back((prev[j][i] * 2).toString());
+            // 점수 추가  
+            setScore(score + (Math.pow(prev[j][i] * 2, SCORE_SCALER_2) * SCORE_SCALER));
           }
         }
-        // 비우기
+        // 비우기>
         prev[j][i] = '';
       }
       // 채우기
@@ -249,6 +276,8 @@ const Board = () => {
           else {
             deque.pop_back();
             deque.push_back((prev[j][i] * 2).toString());
+            // 점수 추가
+            setScore(score + (Math.pow(prev[j][i] * 2, SCORE_SCALER_2) * SCORE_SCALER));
           }
         }
         // 비우기
@@ -263,13 +292,13 @@ const Board = () => {
     }
     return prev;
   }
-  
+
   // 빈 칸 찾기
   const findBlock = (prev) => {
     let x = [];
     let y = [];
-    for (let i=0; i<=3; i++) {
-      for (let j=0; j<=3; j++) {
+    for (let i = 0; i <= 3; i++) {
+      for (let j = 0; j <= 3; j++) {
         if (prev[i][j] === '') {
           y = [...y, i];
           x = [...x, j];
@@ -283,8 +312,8 @@ const Board = () => {
     // 랜덤 블록 생성
     let random_index = Math.floor(Math.random() * x.length);
 
-    prev[y[random_index]][x[random_index]] ='2'; 
-    setCreateEffect(y[random_index]*4+x[random_index]+1);
+    prev[y[random_index]][x[random_index]] = '2';
+    setCreateEffect(y[random_index] * 4 + x[random_index] + 1);
     return prev;
   }
 
@@ -305,16 +334,16 @@ const Board = () => {
       case 38:
         setContent(prev => moveUp([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
         setTimeout(() => newBlock(), BLOCK_CREATE_DELAY);
-        
+
         break;
       case 39:
         setContent(prev => moveRight([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
         setTimeout(() => newBlock(), BLOCK_CREATE_DELAY);
-        
+
         break;
       case 40:
         setContent(prev => moveDown([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
-        setTimeout(() => newBlock(), BLOCK_CREATE_DELAY); 
+        setTimeout(() => newBlock(), BLOCK_CREATE_DELAY);
         break;
       default:
         break;
@@ -323,23 +352,39 @@ const Board = () => {
 
   const restartGame = () => {
     setGameover(0);
+    // 초기화
     setContent([['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]);
-    // 4개의 블록 생성
-    for (let i=0; i<CREATE_BLOCK_NUM; i++) {
+    setScore(0);
+    // n개의 블록 생성
+    for (let i = 0; i < CREATE_BLOCK_NUM; i++) {
       newBlock();
     }
   }
 
+  // 이스터에그
+  const onChange = (e) => {
+    setText(e.target.value);
+  };
+
   return (
     <div className="board" onClick={() => {
-        controllerRef.current?.focus();
-      }} onBlur={() => {controllerRef.current?.focus();}}>
-      
-      <div className={gameover?"board--gameover":"board--content"} >
+      controllerRef.current?.focus();
+    }} onBlur={() => { controllerRef.current?.focus(); }}>
+      <div className={gameover ? "board--gameover" : "board--content"} >
         {contentMap}
       </div>
-      {gameover ? <div className="gameover">게임오버 <button className="retry" onClick={restartGame}>다시하기</button></div> : null}
-      <input onKeyDown={keyDown} ref={controllerRef} autoFocus></input>
+      {gameover ? <><div className="gameover">게임오버</div><button className="retry" onClick={restartGame}>다시하기</button></> : null}
+      <input onKeyDown={keyDown} ref={controllerRef} onChange={onChange} autoFocus></input>
+      {text && <>ㅎㅇ</>}
+      <div className='score'>
+        <div className="score--score">점수</div>
+        <span>{score}</span>
+        <div className="score--max">최대</div>
+        <span>{scoreMaxNumber}</span> 
+      </div>
+      <div className='new-game' onClick={restartGame}>
+        다시하기
+      </div>
     </div>
   )
 }

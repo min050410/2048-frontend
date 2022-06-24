@@ -89,3 +89,8 @@ span {
 .active span:nth-of-type(3) {
   transform: translateY(0px) rotate(45deg);
 }
+
+.logo {
+  margin-left: 20px;
+  color: #4a452b;
+}

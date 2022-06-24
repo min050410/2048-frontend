@@ -1,4 +1,3 @@
-import bplogo from '../img/bplogo.png';
 import { Link } from "react-router-dom";
 import { useState } from 'react';
 
@@ -15,13 +14,13 @@ const Header = () => {
 
     return (
         <header>
-            <Link to="/" style={{ textDecoration: 'none' }}>2048</Link>
+            <Link to="/" style={{ textDecoration: 'none' }}><span className="logo">2048</span></Link>
             <div className="menu">
                 <div className="graph">
                     <span>랭킹</span>
                 </div>
                 <div className="mypage">
-                    <span>마이 페이지</span>
+                    <a href="https://github.com/min050410/2048-frontend" style={{ textDecoration: 'none' }}><span>Github</span></a>
                 </div>
 
                 <button className={menu ? "active" : "menu-trigger"} onClick={toggleMenu}>
