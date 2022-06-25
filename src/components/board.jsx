@@ -322,28 +322,31 @@ const Board = () => {
     setContent(prev => findBlock([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
   }
 
-
   const keyDown = ({ keyCode }) => {
     switch (keyCode) {
       case 37:
         // 새로운 주소값 할당으로 re-rendering
         // 전개 연산자는 1차원 배열에서만 유효
+        // keyCode.preventDefault();
         setContent(prev => moveLeft([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
         setTimeout(() => newBlock(), BLOCK_CREATE_DELAY);
+        // clearTimeout(myTimeout);
+        // controllerRef.current.unbind();
         break;
       case 38:
         setContent(prev => moveUp([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
         setTimeout(() => newBlock(), BLOCK_CREATE_DELAY);
-
+        // clearTimeout(myTimeout);  
         break;
       case 39:
         setContent(prev => moveRight([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
         setTimeout(() => newBlock(), BLOCK_CREATE_DELAY);
-
+        // clearTimeout(myTimeout);  
         break;
       case 40:
         setContent(prev => moveDown([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
         setTimeout(() => newBlock(), BLOCK_CREATE_DELAY);
+        // clearTimeout(myTimeout);  
         break;
       default:
         break;
@@ -373,7 +376,7 @@ const Board = () => {
       <div className={gameover ? "board--gameover" : "board--content"} >
         {contentMap}
       </div>
-      {gameover ? <><div className="gameover">게임오버</div><button className="retry" onClick={restartGame}>다시하기</button></> : null}
+      {gameover ? <><div className="gameover">게임오버</div></> : null}
       <input onKeyDown={keyDown} ref={controllerRef} onChange={onChange} autoFocus></input>
       {text && <>ㅎㅇ</>}
       <div className='score'>
