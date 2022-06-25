@@ -16,18 +16,21 @@ const Header = () => {
         <header>
             <Link to="/" style={{ textDecoration: 'none' }}><span className="logo">2048</span></Link>
             <div className="menu">
-                <div className="graph">
-                    <span>랭킹</span>
-                </div>
+                <Link to="/ranking" style={{ textDecoration: 'none' }}>
+                    <div className="ranking">
+                        <span>랭킹</span>
+                    </div>
+                </Link>
+
                 <div className="mypage">
                     <a href="https://github.com/min050410/2048-frontend" style={{ textDecoration: 'none' }}><span>Github</span></a>
                 </div>
 
-                <button className={menu ? "active" : "menu-trigger"} onClick={toggleMenu}>
+                {/* <button className={menu ? "active" : "menu-trigger"} onClick={toggleMenu}>
                     <span></span>
                     <span></span>
                     <span></span>
-                </button>
+                </button> */}
             </div>
         </header>
 

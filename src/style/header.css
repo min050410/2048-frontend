@@ -24,7 +24,7 @@ span {
     font-family: 'Nanum Gothic', sans-serif;
 }
 
-.menu > div {
+.menu > div, .menu > a > div {
     padding: 12px;
     /* height: px; */
     /* background-color: ; */

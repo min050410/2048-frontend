@@ -1,8 +1,22 @@
 import '../style/board.css';
 import { useState, useRef, useEffect } from 'react';
 
+let createGuest = {
+  method: 'post',
+  url: 'http://localhost:3000/api/user/create',
+  headers: { }
+};
+
+let getID = {
+  method: 'get',
+  url: 'http://localhost:3000/api/user/getID',
+  headers: { }
+};
+
 const Board = () => {
 
+  const axios = require('axios');
+  const qs = require('qs');
   const CREATE_BLOCK_NUM = 4; 
   const BLOCK_CREATE_DELAY = 200;
   const SCORE_SCALER = 200;
@@ -11,10 +25,13 @@ const Board = () => {
   const [content, setContent] = useState([['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]);
   const [gameover, setGameover] = useState(0);
   const [createEffect, setCreateEffect] = useState(-1);
-  const [mergeEffect, setMergeEffect] = useState(-1);
   const [text, setText] = useState('');
   const [score, setScore] = useState(0);
   const [scoreMaxNumber, setScoreMaxNumber] = useState(0);
+  const [myName, setMyname] = useState('');
+  const [myScore, setMyScore] = useState(0);
+  const [myScoreMaxNumber, setMyScoreMaxNumber] = useState(0);
+
 
   // input focus를 위한 Ref
   const controllerRef = useRef(null);
@@ -23,10 +40,65 @@ const Board = () => {
   
   // useEffect 처음 랜더링
   useEffect(() => {
+
+    (async() => {
+      const loadGuestId = localStorage.getItem('guestId');
+      // 기존 데이터가 없다면 게스트 만들기
+      if (loadGuestId === null) {
+        await axios(createGuest)
+        .then(function (res) {
+            console.log(res.data);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+
+        await axios(getID)
+        .then(function (res) {
+            localStorage.setItem('guestId', res.data);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+
+        let getScore = {
+          method: 'get',
+          url: `http://localhost:3000/api/user/getUser/${localStorage.getItem('guestId').toString()}`,
+        }; 
+
+        await axios(getScore)
+        .then(function (response) {
+          setMyname(response.data['nickname']);
+          setMyScore(response.data['score']);
+          setMyScoreMaxNumber(response.data['scoreMaxNumber']);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      }
+      else {
+        let getScore = {
+          method: 'get',
+          url: `http://localhost:3000/api/user/getUser/${loadGuestId}`,
+        }; 
+
+        await axios(getScore)
+        .then(function (response) {
+          setMyname(response.data['nickname']);
+          setMyScore(response.data['score']);
+          setMyScoreMaxNumber(response.data['scoreMaxNumber']);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      }
+  })();
+
     // n개의 블록 생성
     for (let i = 0; i < CREATE_BLOCK_NUM; i++) {
       newBlock();
     }
+
   }, []);
 
   const item = render.map((listIn) => {
@@ -134,8 +206,47 @@ const Board = () => {
     setContentMap(item);
     if (checkGameOver()) {
       setGameover(1);
-    }
-    setScoreMaxNumber(checkMaxNumber());
+
+      // server에 score 전송
+      let data = qs.stringify({
+        'usercode': localStorage.getItem('guestId').toString(),
+        'score': score,
+        'scoreMaxNumber': scoreMaxNumber 
+      });
+      let config = {
+        method: 'post',
+        url: 'http://localhost:3000/api/user/score',
+        headers: { 
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data : data
+      };
+      axios(config)
+      .then(function (response) {
+        console.log(JSON.stringify(response.data));
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
+      // 서버 값 불러오기
+      let getScore = {
+        method: 'get',
+        url: `http://localhost:3000/api/user/getUser/${localStorage.getItem('guestId').toString()}`,
+      }; 
+
+      axios(getScore)
+      .then(function (response) {
+        setMyScore(response.data['score']);
+        setMyScoreMaxNumber(response.data['scoreMaxNumber']);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+      }
+
+      setScoreMaxNumber(checkMaxNumber());
+
   }, [content]);
 
   // Deque 자료구조
@@ -251,7 +362,7 @@ const Board = () => {
             setScore(score + (Math.pow(prev[j][i] * 2, SCORE_SCALER_2) * SCORE_SCALER));
           }
         }
-        // 비우기>
+        // 비우기
         prev[j][i] = '';
       }
       // 채우기
@@ -358,6 +469,7 @@ const Board = () => {
     // 초기화
     setContent([['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]);
     setScore(0);
+
     // n개의 블록 생성
     for (let i = 0; i < CREATE_BLOCK_NUM; i++) {
       newBlock();
@@ -377,14 +489,24 @@ const Board = () => {
         {contentMap}
       </div>
       {gameover ? <><div className="gameover">게임오버</div></> : null}
-      <input onKeyDown={keyDown} ref={controllerRef} onChange={onChange} autoFocus></input>
+      <input className="board--input" onKeyDown={keyDown} ref={controllerRef} onChange={onChange} autoFocus></input>
       {text && <>ㅎㅇ</>}
       <div className='score'>
-        <div className="score--score">점수</div>
+        <div className="score--score">현재 점수</div>
         <span>{score}</span>
-        <div className="score--max">최대</div>
+        <div className="score--max">현재 최대</div>
         <span>{scoreMaxNumber}</span> 
       </div>
+
+      <div className='myscore'>
+        <div className="score--score">이름</div>
+        <span>{myName}</span>
+        <div className="score--score">최고 점수</div>
+        <span>{myScore}</span>
+        <div className="score--max">최대 숫자</div>
+        <span>{myScoreMaxNumber}</span> 
+      </div>
+
       <div className='new-game' onClick={restartGame}>
         다시하기
       </div>

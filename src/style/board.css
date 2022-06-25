@@ -264,7 +264,7 @@
     font-size: 40px;
 }
 
-input {
+.board--input {
     opacity: 0;
 }
 
@@ -308,6 +308,28 @@ input {
 
 .new-game:hover {
     /* background-color: #bbada0; */
-    transform: scale(1.05);
-    
+    transform: scale(1.05);  
+}
+
+.myscore {
+    position: absolute;
+    right: 105%;
+    min-width: 100px;
+    width: fit-content;
+    background-color: #bbada0;
+    color: #eee4da;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    font-family: 'Nanum Gothic', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    gap: 5px;
+}
+
+.myscore > span {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
 }

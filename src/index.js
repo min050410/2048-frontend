@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import Ranking from './components/ranking';
 import reportWebVitals from './reportWebVitals';
 import {
   BrowserRouter,
@@ -13,6 +14,7 @@ root.render(
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<App />}/>
+      <Route path="/ranking" element={<Ranking />}/>
     </Routes>
   </BrowserRouter>
 );
