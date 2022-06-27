@@ -4,14 +4,13 @@ import Header from './header';
 import '../style/ranking.css';
 
 const axios = require('axios');
+const axios_ip = 'localhost';
 
 const getRank = {
     method: 'get',
-    url: 'http://localhost:3000/api/user/rank',
+    url: `http://${axios_ip}:3000/api/user/rank`,
     headers: {}
 };
-
-
 
 const Ranking = () => {
     const [rank, setRank] = useState(0);
@@ -29,7 +28,7 @@ const Ranking = () => {
             };
 
             await axios
-                .post("http://localhost:3000/api/user/change", body)
+                .post(`http://${axios_ip}:3000/api/user/change`, body)
                 .then((res) => console.log(res));
 
             getRankaxios();

@@ -1,27 +1,29 @@
 import '../style/board.css';
 import { useState, useRef, useEffect } from 'react';
 
+const axios_ip = 'localhost';
+
 let createGuest = {
   method: 'post',
-  url: 'http://localhost:3000/api/user/create',
-  headers: { }
+  url: `http://${axios_ip}:3000/api/user/create`,
+  headers: {}
 };
 
 let getID = {
   method: 'get',
-  url: 'http://localhost:3000/api/user/getID',
-  headers: { }
+  url: `http://${axios_ip}:3000/api/user/getID`,
+  headers: {}
 };
 
 const Board = () => {
 
   const axios = require('axios');
   const qs = require('qs');
-  const CREATE_BLOCK_NUM = 4; 
+  const CREATE_BLOCK_NUM = 4;
   const BLOCK_CREATE_DELAY = 200;
   const SCORE_SCALER = 200;
   const SCORE_SCALER_2 = 1;
-  
+
   const [content, setContent] = useState([['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]);
   const [gameover, setGameover] = useState(0);
   const [createEffect, setCreateEffect] = useState(-1);
@@ -32,67 +34,66 @@ const Board = () => {
   const [myScore, setMyScore] = useState(0);
   const [myScoreMaxNumber, setMyScoreMaxNumber] = useState(0);
 
-
   // input focus를 위한 Ref
   const controllerRef = useRef(null);
-  
+
   const render = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16]];
-  
+
   // useEffect 처음 랜더링
   useEffect(() => {
 
-    (async() => {
+    (async () => {
       const loadGuestId = localStorage.getItem('guestId');
       // 기존 데이터가 없다면 게스트 만들기
       if (loadGuestId === null) {
         await axios(createGuest)
-        .then(function (res) {
-            console.log(res.data);
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+          .then(function (res) {
+            // console.log(res.data);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
 
         await axios(getID)
-        .then(function (res) {
+          .then(function (res) {
             localStorage.setItem('guestId', res.data);
-        })
-        .catch(function (error) {
+          })
+          .catch(function (error) {
             console.log(error);
-        });
+          });
 
         let getScore = {
           method: 'get',
-          url: `http://localhost:3000/api/user/getUser/${localStorage.getItem('guestId').toString()}`,
-        }; 
+          url: `http://${axios_ip}:3000/api/user/getUser/${localStorage.getItem('guestId').toString()}`,
+        };
 
         await axios(getScore)
-        .then(function (response) {
-          setMyname(response.data['nickname']);
-          setMyScore(response.data['score']);
-          setMyScoreMaxNumber(response.data['scoreMaxNumber']);
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+          .then(function (response) {
+            setMyname(response.data['nickname']);
+            setMyScore(response.data['score']);
+            setMyScoreMaxNumber(response.data['scoreMaxNumber']);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
       }
       else {
         let getScore = {
           method: 'get',
-          url: `http://localhost:3000/api/user/getUser/${loadGuestId}`,
-        }; 
+          url: `http://${axios_ip}:3000/api/user/getUser/${loadGuestId}`,
+        };
 
         await axios(getScore)
-        .then(function (response) {
-          setMyname(response.data['nickname']);
-          setMyScore(response.data['score']);
-          setMyScoreMaxNumber(response.data['scoreMaxNumber']);
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+          .then(function (response) {
+            setMyname(response.data['nickname']);
+            setMyScore(response.data['score']);
+            setMyScoreMaxNumber(response.data['scoreMaxNumber']);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
       }
-  })();
+    })();
 
     // n개의 블록 생성
     for (let i = 0; i < CREATE_BLOCK_NUM; i++) {
@@ -205,48 +206,48 @@ const Board = () => {
   useEffect(() => {
     setContentMap(item);
     if (checkGameOver()) {
-      setGameover(1);
+      // 게임오버 후 처음 한번만 실행
+      if (gameover === 0) {
+        // server에 score 전송
+        let data = qs.stringify({
+          'usercode': localStorage.getItem('guestId').toString(),
+          'score': score,
+          'scoreMaxNumber': scoreMaxNumber
+        });
+        let config = {
+          method: 'post',
+          url: `http://${axios_ip}:3000/api/user/score`,
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          data: data
+        };
+        axios(config)
+          .then(function (response) {
+            // console.log(JSON.stringify(response.data));
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
 
-      // server에 score 전송
-      let data = qs.stringify({
-        'usercode': localStorage.getItem('guestId').toString(),
-        'score': score,
-        'scoreMaxNumber': scoreMaxNumber 
-      });
-      let config = {
-        method: 'post',
-        url: 'http://localhost:3000/api/user/score',
-        headers: { 
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data : data
-      };
-      axios(config)
-      .then(function (response) {
-        console.log(JSON.stringify(response.data));
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+        // 서버 값 불러오기
+        let getScore = {
+          method: 'get',
+          url: `http://${axios_ip}:3000/api/user/getUser/${localStorage.getItem('guestId').toString()}`,
+        };
 
-      // 서버 값 불러오기
-      let getScore = {
-        method: 'get',
-        url: `http://localhost:3000/api/user/getUser/${localStorage.getItem('guestId').toString()}`,
-      }; 
-
-      axios(getScore)
-      .then(function (response) {
-        setMyScore(response.data['score']);
-        setMyScoreMaxNumber(response.data['scoreMaxNumber']);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+        axios(getScore)
+          .then(function (response) {
+            setMyScore(response.data['score']);
+            setMyScoreMaxNumber(response.data['scoreMaxNumber']);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
       }
-
-      setScoreMaxNumber(checkMaxNumber());
-
+      setGameover(1);
+    }
+    setScoreMaxNumber(checkMaxNumber());
   }, [content]);
 
   // Deque 자료구조
@@ -495,7 +496,7 @@ const Board = () => {
         <div className="score--score">현재 점수</div>
         <span>{score}</span>
         <div className="score--max">현재 최대</div>
-        <span>{scoreMaxNumber}</span> 
+        <span>{scoreMaxNumber}</span>
       </div>
 
       <div className='myscore'>
@@ -504,7 +505,7 @@ const Board = () => {
         <div className="score--score">최고 점수</div>
         <span>{myScore}</span>
         <div className="score--max">최대 숫자</div>
-        <span>{myScoreMaxNumber}</span> 
+        <span>{myScoreMaxNumber}</span>
       </div>
 
       <div className='new-game' onClick={restartGame}>
