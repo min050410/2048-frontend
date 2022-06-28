@@ -21,11 +21,9 @@ const Header = () => {
                         <span>랭킹</span>
                     </div>
                 </Link>
-
                 <div className="mypage">
                     <a href="https://github.com/min050410/2048-frontend" style={{ textDecoration: 'none' }}><span>Github</span></a>
                 </div>
-
                 {/* <button className={menu ? "active" : "menu-trigger"} onClick={toggleMenu}>
                     <span></span>
                     <span></span>

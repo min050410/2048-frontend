@@ -4,11 +4,10 @@ import Header from './header';
 import '../style/ranking.css';
 
 const axios = require('axios');
-const axios_ip = 'localhost';
 
 const getRank = {
     method: 'get',
-    url: `http://${axios_ip}:3000/api/user/rank`,
+    url: `http://${process.env.REACT_APP_IP}:3000/api/user/rank`,
     headers: {}
 };
 
@@ -18,19 +17,15 @@ const Ranking = () => {
 
     const submitHandler = (e) => {
         e.preventDefault();
-
         (async () => {
             console.log(nickname);
-
             let body = {
                 usercode: Number(localStorage.getItem('guestId')),
                 nickname: nickname
             };
-
             await axios
-                .post(`http://${axios_ip}:3000/api/user/change`, body)
+                .post(`http://${process.env.REACT_APP_IP}:3000/api/user/change`, body)
                 .then((res) => console.log(res));
-
             getRankaxios();
         })()
     };

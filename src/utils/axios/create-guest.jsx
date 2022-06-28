@@ -1,14 +1,12 @@
-const axios_ip = 'localhost';
-
 const create = {
     method: 'post',
-    url: `http://${axios_ip}:3000/api/user/create`,
+    url: `http://${process.env.REACT_APP_IP}:3000/api/user/create`,
     headers: {}
 };
 
 const getID = {
     method: 'get',
-    url: `http://${axios_ip}:3000/api/user/getID`,
+    url: `http://${process.env.REACT_APP_IP}:3000/api/user/getID`,
     headers: {}
 };
 

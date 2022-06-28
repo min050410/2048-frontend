@@ -3,8 +3,6 @@ const qs = require('qs');
 
 const updateScore = async (setMyScore, setMyScoreMaxNumber, score, scoreMaxNumber) => {
 
-    const axios_ip = 'localhost';
-
     let data = qs.stringify({
         'usercode': localStorage.getItem('guestId').toString(),
         'score': score,
@@ -12,7 +10,7 @@ const updateScore = async (setMyScore, setMyScoreMaxNumber, score, scoreMaxNumbe
     });
     let config = {
         method: 'post',
-        url: `http://${axios_ip}:3000/api/user/score`,
+        url: `http://${process.env.REACT_APP_IP}:3000/api/user/score`,
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
@@ -29,7 +27,7 @@ const updateScore = async (setMyScore, setMyScoreMaxNumber, score, scoreMaxNumbe
     // 서버 값 불러오기
     let getScore = {
         method: 'get',
-        url: `http://${axios_ip}:3000/api/user/getUser/${localStorage.getItem('guestId').toString()}`,
+        url: `http://${process.env.REACT_APP_IP}:3000/api/user/getUser/${localStorage.getItem('guestId').toString()}`,
     };
 
     await axios(getScore)

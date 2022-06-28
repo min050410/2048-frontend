@@ -1,10 +1,9 @@
-const axios_ip = 'localhost';
 const axios = require('axios');
 
 const getScore = async () => {
     const get = {
         method: 'get',
-        url: `http://${axios_ip}:3000/api/user/getUser/${localStorage.getItem('guestId').toString()}`,
+        url: `http://${process.env.REACT_APP_IP}:3000/api/user/getUser/${localStorage.getItem('guestId').toString()}`,
     };
     let res = {
         nickname: '',
