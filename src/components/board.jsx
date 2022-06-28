@@ -1,28 +1,20 @@
 import '../style/board.css';
 import { useState, useRef, useEffect } from 'react';
+import ServerScore from './server-score';
+import LocalScore from './local-score';
 
-const axios_ip = 'localhost';
-
-let createGuest = {
-  method: 'post',
-  url: `http://${axios_ip}:3000/api/user/create`,
-  headers: {}
-};
-
-let getID = {
-  method: 'get',
-  url: `http://${axios_ip}:3000/api/user/getID`,
-  headers: {}
-};
+// utils
+import updateScore from '../utils/axios/update-score';
+import checkMaxNumber from '../utils/check-max-number';
+import checkGameOver from '../utils/check-gameover';
+import createGuest from '../utils/axios/create-guest';
+import getScore from '../utils/axios/get-score';
+import { moveUp, moveLeft, moveRight, moveDown } from '../utils/move-block'
 
 const Board = () => {
 
-  const axios = require('axios');
-  const qs = require('qs');
   const CREATE_BLOCK_NUM = 4;
   const BLOCK_CREATE_DELAY = 200;
-  const SCORE_SCALER = 200;
-  const SCORE_SCALER_2 = 1;
 
   const [content, setContent] = useState([['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']]);
   const [gameover, setGameover] = useState(0);
@@ -46,64 +38,27 @@ const Board = () => {
       const loadGuestId = localStorage.getItem('guestId');
       // 기존 데이터가 없다면 게스트 만들기
       if (loadGuestId === null) {
-        await axios(createGuest)
-          .then(function (res) {
-            // console.log(res.data);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-
-        await axios(getID)
-          .then(function (res) {
-            localStorage.setItem('guestId', res.data);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-
-        let getScore = {
-          method: 'get',
-          url: `http://${axios_ip}:3000/api/user/getUser/${localStorage.getItem('guestId').toString()}`,
-        };
-
-        await axios(getScore)
-          .then(function (response) {
-            setMyname(response.data['nickname']);
-            setMyScore(response.data['score']);
-            setMyScoreMaxNumber(response.data['scoreMaxNumber']);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
+        await createGuest();
+        
+        const res = await getScore();
+        setMyname(res.nickname);
+        setMyScore(res.score);
+        setMyScoreMaxNumber(res.scoreMaxNumber);
       }
       else {
-        let getScore = {
-          method: 'get',
-          url: `http://${axios_ip}:3000/api/user/getUser/${loadGuestId}`,
-        };
-
-        await axios(getScore)
-          .then(function (response) {
-            setMyname(response.data['nickname']);
-            setMyScore(response.data['score']);
-            setMyScoreMaxNumber(response.data['scoreMaxNumber']);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-      }
-    })();
+        const res = await getScore();
+        setMyname(res.nickname);
+        setMyScore(res.score);
+        setMyScoreMaxNumber(res.scoreMaxNumber);
+    }})();
 
     // n개의 블록 생성
     for (let i = 0; i < CREATE_BLOCK_NUM; i++) {
       newBlock();
     }
-
   }, []);
 
   const item = render.map((listIn) => {
-    // console.log(createEffect);
     return (
       listIn.map((idx) => {
         return (
@@ -171,239 +126,17 @@ const Board = () => {
 
   let [contentMap, setContentMap] = useState(item);
 
-  // 게임 오버 판별
-  const checkGameOver = () => {
-    for (let i = 0; i <= 3; i++) {
-      for (let j = 0; j <= 3; j++) {
-        if (content[i][j] === '') return false;
-        if (j < 3) {
-          if (content[i][j] === content[i][j + 1]) {
-            return false;
-          }
-        }
-        if (i < 3) {
-          if (content[i][j] === content[i + 1][j]) {
-            return false;
-          }
-        }
-      }
-    }
-    return true;
-  }
-
-  // 현재 최대 수 판별
-  const checkMaxNumber = () => {
-    let maxNum = 0;
-    for (let i = 0; i <= 3; i++) {
-      for (let j = 0; j <= 3; j++) {
-        if (content[i][j] === '') continue;
-        maxNum = Math.max(maxNum, Number(content[i][j]));
-      }
-    }
-    return maxNum;
-  }
-
   useEffect(() => {
     setContentMap(item);
-    if (checkGameOver()) {
+    if (checkGameOver(content)) {
       // 게임오버 후 처음 한번만 실행
       if (gameover === 0) {
-        // server에 score 전송
-        let data = qs.stringify({
-          'usercode': localStorage.getItem('guestId').toString(),
-          'score': score,
-          'scoreMaxNumber': scoreMaxNumber
-        });
-        let config = {
-          method: 'post',
-          url: `http://${axios_ip}:3000/api/user/score`,
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          data: data
-        };
-        axios(config)
-          .then(function (response) {
-            // console.log(JSON.stringify(response.data));
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-
-        // 서버 값 불러오기
-        let getScore = {
-          method: 'get',
-          url: `http://${axios_ip}:3000/api/user/getUser/${localStorage.getItem('guestId').toString()}`,
-        };
-
-        axios(getScore)
-          .then(function (response) {
-            setMyScore(response.data['score']);
-            setMyScoreMaxNumber(response.data['scoreMaxNumber']);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
+        updateScore(setMyScore, setMyScoreMaxNumber, score, scoreMaxNumber);
       }
       setGameover(1);
     }
-    setScoreMaxNumber(checkMaxNumber());
+    setScoreMaxNumber(checkMaxNumber(content));
   }, [content]);
-
-  // Deque 자료구조
-  class Deque {
-    constructor() {
-      this._arr = [];
-    }
-    push_back(item) {
-      this._arr.push(item);
-    }
-    pop_front() {
-      return this._arr.shift();
-    }
-    pop_back() {
-      return this._arr.pop();
-    }
-    front() {
-      return (this._arr.length !== 0) ? this._arr[0] : '-1';
-    }
-    back() {
-      return (this._arr.length !== 0) ? this._arr[this._arr.length - 1] : '-1';
-    }
-    size() {
-      return this._arr.length;
-    }
-    empty() {
-      return this._arr.length ? true : false;
-    }
-    print_all() {
-      let message = '';
-      for (let i = 0; i < this._arr.length; i++) {
-        if (i === this._arr.length - 1) {
-          message += this._arr[i];
-          break;
-        }
-        message += this._arr[i] + ', ';
-      }
-      console.log(`now queue: [${message}]`);
-    }
-  }
-
-  const moveRight = (prev) => {
-    const deque = new Deque();
-    for (let i = 3; i >= 0; i--) {
-      for (let j = 3; j >= 0; j--) {
-        if (prev[i][j] !== '') {
-          if (deque.back() !== prev[i][j]) {
-            deque.push_back(prev[i][j]);
-            // console.log('enqueue: ' + j + ': ' + prev[i][j]);
-          }
-          else {
-            deque.pop_back();
-            deque.push_back((prev[i][j] * 2).toString());
-            // 점수 추가
-            setScore(score + (Math.pow(prev[i][j] * 2, SCORE_SCALER_2) * SCORE_SCALER));
-          }
-        }
-        // 비우기
-        prev[i][j] = '';
-      }
-      // 채우기
-      // deque.print_all();
-      let queue_length = deque.size();
-      for (let k = 3; k > 3 - queue_length; k--) {
-        prev[i][k] = deque.pop_front();
-      }
-    }
-    return prev;
-  }
-
-  const moveLeft = (prev) => {
-    const deque = new Deque();
-    for (let i = 0; i <= 3; i++) {
-      for (let j = 0; j <= 3; j++) {
-        if (prev[i][j] !== '') {
-          if (deque.back() !== prev[i][j]) {
-            deque.push_back(prev[i][j]);
-            // console.log('enqueue: ' + j + ': '+ prev[i][j]);
-          }
-          else {
-            deque.pop_back();
-            deque.push_back((prev[i][j] * 2).toString());
-            // 점수 추가
-            setScore(score + (Math.pow(prev[i][j] * 2, SCORE_SCALER_2) * SCORE_SCALER));
-          }
-        }
-        // 비우기
-        prev[i][j] = '';
-      }
-      // 채우기
-      // deque.print_all();
-      let queue_length = deque.size();
-      for (let k = 0; k < queue_length; k++) {
-        prev[i][k] = deque.pop_front();
-      }
-    }
-    return prev;
-  }
-
-  const moveUp = (prev) => {
-    const deque = new Deque();
-    for (let i = 0; i <= 3; i++) {
-      for (let j = 0; j <= 3; j++) {
-        if (prev[j][i] !== '') {
-          if (deque.back() !== prev[j][i]) {
-            deque.push_back(prev[j][i]);
-            // console.log('enqueue: ' + j + ': '+ prev[i][j]);
-          }
-          else {
-            deque.pop_back();
-            deque.push_back((prev[j][i] * 2).toString());
-            // 점수 추가  
-            setScore(score + (Math.pow(prev[j][i] * 2, SCORE_SCALER_2) * SCORE_SCALER));
-          }
-        }
-        // 비우기
-        prev[j][i] = '';
-      }
-      // 채우기
-      // deque.print_all();
-      let queue_length = deque.size();
-      for (let k = 0; k < queue_length; k++) {
-        prev[k][i] = deque.pop_front();
-      }
-    }
-    return prev;
-  }
-
-  const moveDown = (prev) => {
-    const deque = new Deque();
-    for (let i = 3; i >= 0; i--) {
-      for (let j = 3; j >= 0; j--) {
-        if (prev[j][i] !== '') {
-          if (deque.back() !== prev[j][i]) {
-            deque.push_back(prev[j][i]);
-            // console.log('enqueue: ' + j + ': ' + prev[i][j]);
-          }
-          else {
-            deque.pop_back();
-            deque.push_back((prev[j][i] * 2).toString());
-            // 점수 추가
-            setScore(score + (Math.pow(prev[j][i] * 2, SCORE_SCALER_2) * SCORE_SCALER));
-          }
-        }
-        // 비우기
-        prev[j][i] = '';
-      }
-      // 채우기
-      // deque.print_all();
-      let queue_length = deque.size();
-      for (let k = 3; k > 3 - queue_length; k--) {
-        prev[k][i] = deque.pop_front();
-      }
-    }
-    return prev;
-  }
 
   // 빈 칸 찾기
   const findBlock = (prev) => {
@@ -439,26 +172,20 @@ const Board = () => {
       case 37:
         // 새로운 주소값 할당으로 re-rendering
         // 전개 연산자는 1차원 배열에서만 유효
-        // keyCode.preventDefault();
-        setContent(prev => moveLeft([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
+        setContent(prev => moveLeft([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]], score, setScore));
         setTimeout(() => newBlock(), BLOCK_CREATE_DELAY);
-        // clearTimeout(myTimeout);
-        // controllerRef.current.unbind();
         break;
       case 38:
-        setContent(prev => moveUp([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
-        setTimeout(() => newBlock(), BLOCK_CREATE_DELAY);
-        // clearTimeout(myTimeout);  
+        setContent(prev => moveUp([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]], score, setScore));
+        setTimeout(() => newBlock(), BLOCK_CREATE_DELAY); 
         break;
       case 39:
-        setContent(prev => moveRight([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
+        setContent(prev => moveRight([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]], score, setScore));
         setTimeout(() => newBlock(), BLOCK_CREATE_DELAY);
-        // clearTimeout(myTimeout);  
         break;
       case 40:
-        setContent(prev => moveDown([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]]));
+        setContent(prev => moveDown([[...prev[0]], [...prev[1]], [...prev[2]], [...prev[3]]], score, setScore));
         setTimeout(() => newBlock(), BLOCK_CREATE_DELAY);
-        // clearTimeout(myTimeout);  
         break;
       default:
         break;
@@ -483,34 +210,22 @@ const Board = () => {
   };
 
   return (
-    <div className="board" onClick={() => {
-      controllerRef.current?.focus();
-    }} onBlur={() => { controllerRef.current?.focus(); }}>
-      <div className={gameover ? "board--gameover" : "board--content"} >
+    <div className="board"
+      onClick={() => {
+        controllerRef.current?.focus();
+      }}
+      onBlur={() => {
+        controllerRef.current?.focus();
+      }}>
+      <div className={gameover ? "board--gameover" : "board--content"}>
         {contentMap}
       </div>
       {gameover ? <><div className="gameover">게임오버</div></> : null}
       <input className="board--input" onKeyDown={keyDown} ref={controllerRef} onChange={onChange} autoFocus></input>
       {text && <>ㅎㅇ</>}
-      <div className='score'>
-        <div className="score--score">현재 점수</div>
-        <span>{score}</span>
-        <div className="score--max">현재 최대</div>
-        <span>{scoreMaxNumber}</span>
-      </div>
-
-      <div className='myscore'>
-        <div className="score--score">이름</div>
-        <span>{myName}</span>
-        <div className="score--score">최고 점수</div>
-        <span>{myScore}</span>
-        <div className="score--max">최대 숫자</div>
-        <span>{myScoreMaxNumber}</span>
-      </div>
-
-      <div className='new-game' onClick={restartGame}>
-        다시하기
-      </div>
+      <LocalScore score={score} scoreMaxNumber={scoreMaxNumber} />
+      <ServerScore myName={myName} myScore={myScore} myScoreMaxNumber={myScoreMaxNumber} />
+      <div className='new-game' onClick={restartGame}>다시하기</div>
     </div>
   )
 }
