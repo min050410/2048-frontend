@@ -15,7 +15,7 @@ const Nickname = (props) => {
         (async () => {
             console.log(nickname);
             let body = {
-                usercode: Number(localStorage.getItem('guestId')),
+                id: localStorage.getItem('id'),
                 nickname: nickname
             };
             await axios
