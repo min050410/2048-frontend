@@ -8,6 +8,7 @@ const updateScore = async (setMyScore, setMyScoreMaxNumber, score, scoreMaxNumbe
         'score': score,
         'scoreMaxNumber': scoreMaxNumber
     });
+
     let config = {
         method: 'post',
         url: `http://${process.env.REACT_APP_IP}:3000/api/user/score`,
@@ -16,6 +17,7 @@ const updateScore = async (setMyScore, setMyScoreMaxNumber, score, scoreMaxNumbe
         },
         data: data
     };
+
     await axios(config)
         .then(function (response) {
             // console.log(JSON.stringify(response.data));
