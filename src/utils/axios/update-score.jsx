@@ -1,12 +1,16 @@
+import { cipher } from './crypto';
 const axios = require('axios');
 const qs = require('qs');
 
 const updateScore = async (setMyScore, setMyScoreMaxNumber, score, scoreMaxNumber) => {
 
+    const cryptoScore = cipher(score, process.env.REACT_APP_KEY);
+    const cryptoScoreMaxNumber = cipher(scoreMaxNumber, process.env.REACT_APP_KEY);
+
     let data = qs.stringify({
-        'usercode': localStorage.getItem('guestId').toString(),
-        'score': score,
-        'scoreMaxNumber': scoreMaxNumber
+        'id': localStorage.getItem('id').toString(),
+        'score': cryptoScore,
+        'scoreMaxNumber': cryptoScoreMaxNumber
     });
 
     let config = {
